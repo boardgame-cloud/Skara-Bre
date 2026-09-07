@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="theme-color" content="#cfe7f2">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Skara Brae — play-along flow</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Vollkorn:wght@500;600;700&family=Archivo:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  /* rulebook palette */
+  --sky:#cfe7f2;
+  --sky-hi:#e6f3fa;
+  --sky-deep:#a8cfe3;
+  --vellum:#f2e7cd;
+  --vellum-hi:#faf3e2;
+  --vellum-sh:#e3d3ac;
+  --parch-edge:#c6ad7d;
+  --leather:#8b6239;
+  --leather-dk:#5d3f26;
+  --slate:#5c6162;
+  --slate-dk:#3b4041;
+  --slate-hi:#7d8283;
+  --ink:#2c2822;
+  --ink-soft:#6b6252;
+  --moss:#7e9c4a;
+  --moss-dk:#4e6a29;
+  --purple:#6f4a92;
+  --rust:#b1442c;
+  --ochre:#c68f36;
+  --lichen:var(--moss-dk);
+  --serif:"Vollkorn",Georgia,"Times New Roman",serif;
+  --sans:"Archivo","Helvetica Neue",Arial,sans-serif;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0;
+  background:linear-gradient(180deg,var(--sky-hi) 0%,var(--sky) 30%,var(--sky-deep) 100%);
+  background-attachment:fixed;
+  color:var(--ink);
+  font-family:var(--sans);
+  font-size:16px;
+  line-height:1.55;
+  padding-bottom:74px;
+}
+.wrap{max-width:44rem;margin:0 auto;padding:0 18px}
+
+/* ---------- masthead ---------- */
+.mast{padding:26px 0 6px}
+.mast h1{
+  font-family:var(--serif);font-weight:700;
+  font-size:clamp(2rem,9vw,2.9rem);
+  line-height:.98;letter-spacing:-.015em;margin:0;color:var(--leather-dk);
+}
+.mast .sub{color:var(--ink-soft);font-size:.92rem;margin-top:6px}
+
+/* player count */
+.pc{display:flex;gap:6px;margin:16px 0 4px;flex-wrap:wrap}
+.pc button{
+  font-family:var(--sans);font-size:.86rem;font-weight:500;
+  color:var(--leather-dk);background:var(--vellum);
+  border:1px solid var(--parch-edge);border-radius:2px;
+  padding:7px 12px;cursor:pointer;
+}
+.pc button[aria-pressed="true"]{
+  color:var(--vellum-hi);background:var(--slate-dk);border-color:var(--slate-dk);
+}
+.pc-note{font-size:.82rem;color:var(--ink-soft);margin:8px 0 0}
+
+/* ---------- hero: the turn loop ---------- */
+.loop{
+  margin:26px 0 8px;padding:20px 0 4px;
+  border-top:2px solid var(--leather);border-bottom:2px solid var(--leather);
+}
+.loop .lead{font-family:var(--serif);font-size:1.05rem;color:var(--leather-dk);margin:0 0 16px}
+.steps{display:grid;gap:3px;grid-template-columns:1fr}
+@media(min-width:620px){.steps{grid-template-columns:repeat(3,1fr)}}
+.step{
+  background:linear-gradient(180deg,var(--slate-hi),var(--slate));
+  border:1px solid var(--slate-dk);padding:14px 15px 16px;color:var(--vellum-hi);
+}
+.step .n{
+  font-family:var(--serif);font-weight:700;font-size:2.3rem;line-height:1;
+  color:var(--vellum-sh);display:block;margin-bottom:6px;
+}
+.step h3{font-family:var(--serif);font-weight:600;font-size:1.12rem;margin:0 0 4px}
+.step p{margin:0;font-size:.88rem;color:#dcd6c4}
+.loopback{display:flex;align-items:center;gap:9px;color:var(--leather-dk);font-size:.8rem;padding:12px 2px 8px}
+.loopback svg{flex:none}
+
+/* ---------- sections ---------- */
+section{padding:34px 0 6px;border-top:1px solid var(--parch-edge);margin-top:30px}
+section:first-of-type{border-top:none}
+h2{
+  font-family:var(--serif);font-weight:600;font-size:1.5rem;
+  margin:0 0 3px;letter-spacing:-.01em;color:var(--leather-dk);
+  display:inline-block;background:var(--vellum);
+  border:1px solid var(--parch-edge);border-left:4px solid var(--leather);
+  padding:5px 16px 6px 13px;
+}
+.kicker{color:var(--ink-soft);font-size:.86rem;margin:8px 0 18px}
+h3.sub{font-family:var(--serif);font-weight:600;font-size:1.1rem;margin:24px 0 6px;color:var(--leather-dk)}
+p{margin:0 0 12px}
+.muted{color:var(--ink-soft)}
+small.muted{font-size:.82rem;display:block;line-height:1.45}
+
+/* checklist */
+ol.check{list-style:none;margin:0;padding:0;counter-reset:c}
+ol.check>li{
+  counter-increment:c;display:flex;gap:12px;align-items:flex-start;
+  padding:11px 0;border-bottom:1px solid var(--parch-edge);
+}
+ol.check>li:last-child{border-bottom:none}
+.tick{
+  flex:none;width:26px;height:26px;margin-top:1px;
+  background:var(--vellum);border:1px solid var(--parch-edge);border-radius:50%;
+  color:var(--leather-dk);font-family:var(--serif);font-size:.95rem;
+  display:flex;align-items:center;justify-content:center;cursor:pointer;
+  padding:0;transition:background .12s ease,color .12s ease;
+}
+.tick::before{content:counter(c)}
+.tick[aria-pressed="true"]{background:var(--moss);border-color:var(--moss-dk);color:#fff}
+.tick[aria-pressed="true"]::before{content:"✓"}
+.tick[aria-pressed="true"]+.body{opacity:.45}
+.body{flex:1}
+.body strong{font-weight:600}
+.body p{margin:2px 0 0;font-size:.9rem;color:var(--ink-soft)}
+
+/* plain list */
+ul.plain{list-style:none;margin:0 0 14px;padding:0}
+ul.plain li{padding:8px 0 8px 16px;border-bottom:1px solid var(--parch-edge);position:relative;font-size:.94rem}
+ul.plain li:last-child{border-bottom:none}
+ul.plain li::before{content:"";position:absolute;left:0;top:16px;width:7px;height:7px;background:var(--ochre);transform:rotate(45deg)}
+
+/* round dial */
+.dial{display:flex;gap:3px;margin:0 0 14px}
+.dial button{
+  flex:1;background:var(--vellum);border:1px solid var(--parch-edge);
+  color:var(--leather-dk);font-family:var(--serif);font-size:1.35rem;font-weight:600;
+  padding:10px 0 8px;cursor:pointer;
+}
+.dial button[aria-pressed="true"]{background:var(--slate-dk);color:var(--vellum-hi);border-color:var(--slate-dk)}
+.dial-out{
+  background:var(--vellum);border:1px solid var(--parch-edge);border-left:4px solid var(--moss);
+  padding:13px 15px;margin:0 0 18px;
+}
+.dial-out b{font-weight:600}
+.dial-out p{margin:0;font-size:.93rem}
+.dial-out p+p{margin-top:6px;color:var(--ink-soft);font-size:.87rem}
+
+/* turn tally */
+.tally{display:flex;gap:8px;align-items:center;margin:0 0 6px;flex-wrap:wrap}
+.tally span{font-size:.86rem;color:var(--ink-soft)}
+.tally button{
+  width:34px;height:34px;border-radius:50%;background:var(--vellum);
+  border:1px solid var(--parch-edge);color:var(--leather-dk);cursor:pointer;
+  font-family:var(--serif);font-size:.95rem;
+}
+.tally button[aria-pressed="true"]{background:var(--purple);border-color:#4f3269;color:#f3ecf7}
+
+/* card types */
+.ctype{
+  border:1px solid var(--parch-edge);border-top:3px solid var(--leather);
+  background:var(--vellum-hi);margin:0 0 3px;padding:13px 15px;
+}
+.ctype h4{margin:0 0 3px;font-family:var(--serif);font-weight:600;font-size:1.05rem;display:flex;justify-content:space-between;gap:10px;align-items:baseline;color:var(--leather-dk)}
+.vp{font-family:var(--sans);font-size:.74rem;font-weight:600;color:var(--ochre);white-space:nowrap}
+.ctype p{margin:0;font-size:.9rem;color:var(--ink-soft)}
+
+/* environments */
+.envs{display:grid;grid-template-columns:repeat(2,1fr);gap:3px;margin:0 0 14px}
+@media(min-width:520px){.envs{grid-template-columns:repeat(4,1fr)}}
+.env{background:var(--vellum-hi);border:1px solid var(--parch-edge);padding:10px 12px}
+.env b{display:block;font-family:var(--serif);font-size:1rem;font-weight:600;color:var(--leather-dk)}
+.env i{font-style:normal;font-size:.78rem;color:var(--ink-soft)}
+.env.shore{border-top:4px solid #3f7f99}
+.env.hills{border-top:4px solid #7e9c4a}
+.env.thickets{border-top:4px solid #8a5340}
+.env.fields{border-top:4px solid #c9a63c}
+
+/* calculators */
+.calc{background:var(--vellum);border:1px solid var(--parch-edge);padding:15px;margin:6px 0 20px}
+.calc h4{margin:0 0 12px;font-family:var(--serif);font-weight:600;font-size:1.02rem;color:var(--leather-dk)}
+.fields{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.fields.three{grid-template-columns:repeat(3,1fr)}
+.f label{display:block;font-size:.76rem;color:var(--ink-soft);margin-bottom:4px}
+.f input,.f select{
+  width:100%;background:var(--vellum-hi);border:1px solid var(--parch-edge);
+  color:var(--ink);font-family:var(--sans);font-size:1rem;padding:8px 9px;border-radius:2px;
+}
+.readout{margin-top:13px;padding-top:12px;border-top:1px solid var(--parch-edge);font-size:.95rem}
+.readout .big{font-family:var(--serif);font-size:1.5rem;font-weight:600;display:block;line-height:1.2;color:var(--leather-dk)}
+.ok{color:var(--moss-dk)}
+.warn{color:var(--rust)}
+
+/* accordion */
+.acc{border:1px solid var(--parch-edge);margin:0 0 3px;background:var(--vellum-hi)}
+.acc>summary{
+  cursor:pointer;padding:11px 15px;font-family:var(--serif);font-size:1.04rem;font-weight:600;
+  display:flex;justify-content:space-between;gap:10px;align-items:center;list-style:none;
+  background:var(--slate);color:var(--vellum-hi);
+}
+.acc>summary::-webkit-details-marker{display:none}
+.acc>summary::after{
+  content:"";flex:none;width:13px;height:13px;background:var(--purple);
+  border:1px solid #3f2757;
+}
+.acc[open]>summary::after{background:var(--ochre);border-color:#8f6420}
+.acc .in{padding:12px 15px 15px;font-size:.92rem}
+.acc .in p{margin:0 0 9px}
+.acc .in p:last-child{margin-bottom:0}
+.flip{color:var(--purple);font-size:.86rem}
+.flip b{font-weight:600}
+.cost{font-family:var(--sans);font-size:.74rem;font-weight:600;color:var(--ink-soft);white-space:nowrap}
+
+/* table */
+.tbl{width:100%;border-collapse:collapse;font-size:.88rem;margin:0 0 10px;background:var(--vellum-hi)}
+.tbl th,.tbl td{text-align:left;padding:7px 9px;border-bottom:1px solid var(--parch-edge)}
+.tbl th{font-weight:600;font-size:.76rem;color:var(--vellum-hi);background:var(--slate)}
+.tbl td:first-child{font-weight:500}
+.wt{font-family:var(--serif);font-weight:600;color:var(--rust)}
+
+/* callout */
+.note{border-left:4px solid var(--rust);background:#f6ddd3;border-top:1px solid #e0bdb0;border-right:1px solid #e0bdb0;border-bottom:1px solid #e0bdb0;padding:11px 14px;margin:0 0 16px;font-size:.9rem}
+.note.calm{border-left-color:#3f7f99;background:#d9ecf4;border-top-color:#b7d5e2;border-right-color:#b7d5e2;border-bottom-color:#b7d5e2}
+.note p:last-child{margin-bottom:0}
+
+/* solo/2p conditional blocks */
+[data-when]{display:none}
+[data-when].on{display:block}
+
+/* bottom nav */
+nav.jump{
+  position:fixed;bottom:0;left:0;right:0;z-index:20;
+  background:var(--slate-dk);
+  border-top:3px solid var(--moss-dk);
+}
+nav.jump ul{display:flex;list-style:none;margin:0;padding:0;overflow-x:auto;-webkit-overflow-scrolling:touch}
+nav.jump a{
+  display:block;padding:14px 14px;color:var(--vellum-sh);text-decoration:none;
+  font-size:.82rem;white-space:nowrap;
+}
+nav.jump a:hover,nav.jump a:focus{color:#fff}
+footer{
+  color:#e8efdc;font-size:.8rem;padding:22px 18px 26px;margin:34px -18px 0;
+  background:var(--moss-dk);border-top:3px solid var(--moss);
+}
+footer p{margin:0}
+:focus-visible{outline:2px solid var(--purple);outline-offset:2px}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="mast">
+  <h1>Skara Brae</h1>
+  <p class="sub">A turn-by-turn companion. Four rounds, three turns each.</p>
+  <div class="pc" role="group" aria-label="Number of players">
+    <button data-pc="solo" aria-pressed="false">Solo</button>
+    <button data-pc="2" aria-pressed="false">2 players</button>
+    <button data-pc="3" aria-pressed="true">3 players</button>
+    <button data-pc="4" aria-pressed="false">4 players</button>
+  </div>
+  <p class="pc-note" id="pcNote"></p>
+</header>
+
+<div class="loop">
+  <p class="lead">Every turn you take is these three things, in this order.</p>
+  <div class="steps">
+    <div class="step"><span class="n">1</span><h3>Take a card</h3><p>One Village Card from the current set, resolved fully before you touch a worker.</p></div>
+    <div class="step"><span class="n">2</span><h3>Place workers</h3><p>All of them, one at a time. Finish each placement before starting the next.</p></div>
+    <div class="step"><span class="n">3</span><h3>Take them back</h3><p>Every worker returns to your side, ready to go again next turn.</p></div>
+  </div>
+  <div class="loopback">
+    <svg width="26" height="14" viewBox="0 0 26 14" aria-hidden="true"><path d="M25 7H4M4 7l4-4M4 7l4 4" stroke="#8b6239" stroke-width="1.4" fill="none"/></svg>
+    <span>Three turns per round. Four rounds. Then score.</span>
+  </div>
+</div>
+
+<!-- ============ SETUP ============ -->
+<section id="setup">
+  <h2>Setup</h2>
+  <p class="kicker">Tap a number as you finish it.</p>
+  <ol class="check">
+    <li><button class="tick" aria-pressed="false" aria-label="Step 1"></button><div class="body">
+      <strong>Player board, slider, two markers</strong>
+      <p>Slider sits over the second column of the storage area. Furnish Marker and Trade Marker both go in the left-most slot of their tracks — that's space 0.</p></div></li>
+    <li><button class="tick" aria-pressed="false" aria-label="Step 2"></button><div class="body">
+      <strong>Lay out your 9 Standard Action Tiles</strong>
+      <p>Your colour, in order, to the right of the board so the artwork lines up. Unflipped side up — each tile shows two resources on a tan banner along the bottom.</p></div></li>
+    <li><button class="tick" aria-pressed="false" aria-label="Step 3"></button><div class="body">
+      <strong>All 4 workers into a reserve</strong>
+      <p>Off to the side. They are not yours to place yet — you earn one per round.</p></div></li>
+    <li><button class="tick" aria-pressed="false" aria-label="Step 4"></button><div class="body">
+      <strong>Main supply</strong>
+      <p>All resources, Roof Cards and Extra Storage Tiles in a shared pile.</p></div></li>
+    <li><button class="tick" aria-pressed="false" aria-label="Step 5"></button><div class="body">
+      <strong>Take 2 Skaill Knives</strong>
+      <p>Into two separate spaces, left of your slider.</p></div></li>
+    <li><button class="tick" aria-pressed="false" aria-label="Step 6"></button><div class="body">
+      <strong>Turn Order Tile</strong>
+      <p data-when="multi" class="on">Stack the Turn Markers randomly on the <b>left</b> space.</p>
+      <p data-when="2">Two players: add one extra marker in an unused colour. It's a neutral player.</p>
+      <p data-when="solo">Solo: the Turn Order Tile and all Turn Markers go back in the box.</p></div></li>
+    <li><button class="tick" aria-pressed="false" aria-label="Step 7"></button><div class="body">
+      <strong>Shuffle the 80 Village Cards</strong>
+      <p>Facedown draw pile. If it ever runs out, shuffle the discards into a new one.</p></div></li>
+    <li data-when="solo" class="on"><button class="tick" aria-pressed="false" aria-label="Step 8"></button><div class="body">
+      <strong>Solo goals</strong>
+      <p>1 Focus Card and 4 Task Cards faceup above your board. Rest to the box.</p></div></li>
+    <li><button class="tick" aria-pressed="false" aria-label="Step 9"></button><div class="body">
+      <strong>Pick a Special Action Tile</strong>
+      <p>Deal 2, keep 1. Place it below your Trade tile, Craft cost showing along the bottom. <span data-when="solo2" style="display:inline">Playing 1–2, you can deal 3 and keep 1 instead.</span></p>
+      <p>Hunt Boar needs 3 boar nearby. Spin Wool needs the 10 Spindle Whorl Cards. Recruit needs the 3 black workers.</p></div></li>
+  </ol>
+</section>
+
+<!-- ============ ROUND ============ -->
+<section id="round">
+  <h2>Start of a round</h2>
+  <p class="kicker">Which round are you on?</p>
+  <div class="dial" role="group" aria-label="Round">
+    <button data-round="1" aria-pressed="true">1</button>
+    <button data-round="2" aria-pressed="false">2</button>
+    <button data-round="3" aria-pressed="false">3</button>
+    <button data-round="4" aria-pressed="false">4</button>
+  </div>
+  <div class="dial-out">
+    <p id="roundWorker"></p>
+    <p id="roundDeal"></p>
+  </div>
+
+  <div class="tally" role="group" aria-label="Turns taken this round">
+    <span>Turns taken:</span>
+    <button data-turn="1" aria-pressed="false">1</button>
+    <button data-turn="2" aria-pressed="false">2</button>
+    <button data-turn="3" aria-pressed="false">3</button>
+    <span id="turnHint">Three turns, then the round ends.</span>
+  </div>
+</section>
+
+<!-- ============ TURN ORDER ============ -->
+<section id="order">
+  <h2>Who goes now</h2>
+  <div data-when="multi" class="on">
+    <p class="kicker">The tile has three spaces: left (waiting), top (passed), right (done).</p>
+    <p>Whoever's marker is on <b>top of the left stack</b> is the active player. Two choices, no waiting around — decide as soon as it's you.</p>
+    <ul class="plain">
+      <li><b>Take your turn.</b> Move your marker to the <b>right</b> space, on top of what's there. Then play your turn. The next person becomes active immediately while you're still going.</li>
+      <li><b>Pass.</b> Move your marker to the <b>top</b> space instead. You'll still take a turn — just after everyone else in the left stack — and you'll be earlier in the order for the next set of cards.</li>
+    </ul>
+    <p>When the left stack empties, work through the top space from the top down. Those players must take a turn now.</p>
+    <p>Once everyone has gone: move the whole right-hand stack back to the left space keeping its order, discard the last Village Card left in the set, and slide the Turn Order Tile along to the next set. Three sets gone means the round is over.</p>
+    <div class="note" data-when="2">
+      <p><b>The neutral player.</b> When the spare marker comes up, move it to the right space and discard the left-most Village Card of the current set. Nothing else happens.</p>
+    </div>
+  </div>
+  <div data-when="solo">
+    <p class="kicker">No turn order tile. You draw a shrinking hand each turn.</p>
+    <ul class="plain">
+      <li><b>Turn 1</b> — draw 4 Village Cards, keep 1, discard the rest.</li>
+      <li><b>Turn 2</b> — draw 3, keep 1.</li>
+      <li><b>Turn 3</b> — draw 2, keep 1.</li>
+    </ul>
+    <div class="note calm"><p>Deal facedown piles of 4, 3 and 2 at the start of the round so you don't lose count.</p></div>
+    <h3 class="sub">Task Cards</h3>
+    <p>At any point in a turn, pay the resources on a Task Card to take that action straight away — as though you'd placed a worker there, even if the tile is occupied. Then flip the card facedown. Each one still faceup at the end costs you 2VP.</p>
+    <h3 class="sub">Focus Card</h3>
+    <p>An end-game goal. Meet it and flip it facedown. Leave it faceup and it costs 5VP.</p>
+  </div>
+</section>
+
+<!-- ============ THE CARD ============ -->
+<section id="cards">
+  <h2>Step 1 — take a card</h2>
+  <p class="kicker">From the left-most set. The Turn Order Tile sits beside it as a reminder.</p>
+
+  <div class="ctype"><h4>Roof <span class="vp">2VP</span></h4>
+    <p>Below your board. Each roof shelters one settler at feeding time, so that settler eats nothing. Roofs you gain from actions instead come from the main supply and are only worth 1VP.</p></div>
+  <div class="ctype"><h4>Stone Ball <span class="vp">2VP</span></h4>
+    <p>Below your board, then take 1 Skaill Knife for <em>every</em> stone ball you own, this one included.</p></div>
+  <div class="ctype"><h4>Utensils <span class="vp">2VP</span></h4>
+    <p>Below your board, then take 1 Hide. Permanently: hearth limit +1, and 1 less midden every round.</p></div>
+  <div class="ctype"><h4>Settler <span class="vp">1–2VP each on the Furnish track</span></h4>
+    <p>Slide it under the matching Environment so the icon at its top stays visible. Then harvest — see below.</p></div>
+
+  <h3 class="sub">Environments, left to right</h3>
+  <div class="envs">
+    <div class="env shore"><b>Shore</b><i>Shells, seaweed</i></div>
+    <div class="env hills"><b>Hills</b><i>Stone</i></div>
+    <div class="env thickets"><b>Thickets</b><i>Wood</i></div>
+    <div class="env fields"><b>Fields</b><i>Barley</i></div>
+  </div>
+  <small class="muted">The Gather tile for each Environment shows exactly what its harvest gives. Check the tile, not your memory — flipped tiles differ.</small>
+
+  <h3 class="sub">Placing a settler</h3>
+  <ol class="check">
+    <li><button class="tick" aria-pressed="false" aria-label="Harvest"></button><div class="body">
+      <strong>Top harvest — mandatory, in full</strong>
+      <p>Count your icons in that Environment (including the new settler) and gain that many resources of what the Gather tile shows. Offered two types? Any mix. You can't take fewer.</p></div></li>
+    <li><button class="tick" aria-pressed="false" aria-label="Bottom effect"></button><div class="body">
+      <strong>Bottom effect — optional, in full, once</strong>
+      <p>Gain a specific resource, swap 1 resource for 2 of another, or harvest from a different Environment. Never repeatable.</p></div></li>
+  </ol>
+  <div class="note calm"><p><b>Skaill Knives.</b> Any time you count Environment icons, spend knives to count as having one more each — for the harvest, the bottom effect, or both. This is the main reason to hold knives, but they're also 1VP apiece at the end.</p></div>
+</section>
+
+<!-- ============ WORKERS ============ -->
+<section id="workers">
+  <h2>Step 2 — place workers</h2>
+  <p class="kicker">Onto your 10 Action Tiles: nine standard, one special.</p>
+  <ul class="plain">
+    <li>Each tile holds <b>one small worker and one large worker</b> — so place your large one last, it can squeeze in anywhere.</li>
+    <li>Pay costs and resolve effects <b>top to bottom</b> on the tile.</li>
+    <li>Fully finish one worker before placing the next.</li>
+    <li>You may skip placing a worker, though it's rarely worth it.</li>
+  </ul>
+  <p class="muted">Then step 3: pick every worker back up.</p>
+  <p><a href="#tiles" style="color:var(--moss-dk);text-decoration-color:var(--ochre)">Jump to what each tile does</a></p>
+</section>
+
+<!-- ============ STORAGE ============ -->
+<section id="storage">
+  <h2>Your storage area</h2>
+  <p class="kicker">The engine and the trap.</p>
+  <ul class="plain">
+    <li>One resource per space, always <b>left of the slider</b>.</li>
+    <li>Out of room? Push the slider one column <b>right</b>. That's more space and more midden.</li>
+    <li>Slider already at the far right? You still gain resources — they just wait off the board until space appears.</li>
+    <li>The slider only ever moves back left when you <b>clear midden</b>, and only if you have 3 or more empty spaces. You can't dump resources to make room.</li>
+    <li>Rearrange freely. Discard voluntarily, never.</li>
+    <li>Midden can't be spent, ever. "Any resource" never means midden.</li>
+    <li>Run out of a resource type? An Extra Storage Tile holds 1 token standing for 4, covering 4 spaces.</li>
+  </ul>
+  <div class="note"><p>The two holes in your slider are the price of hoarding: the top one is midden per round, the bottom one is VP lost at the end.</p></div>
+</section>
+
+<!-- ============ END OF ROUND ============ -->
+<section id="endround">
+  <h2>End of round</h2>
+  <p class="kicker">All three turns done, no cards left in the middle. Three steps, in order.</p>
+  <ol class="check">
+    <li><button class="tick" aria-pressed="false" aria-label="Rest"></button><div class="body">
+      <strong>Rest abilities</strong>
+      <p>Any order. A flipped Craft tile gives you a free Cook action. Recruit returns your black workers.</p></div></li>
+    <li><button class="tick" aria-pressed="false" aria-label="Feed"></button><div class="body">
+      <strong>Feed the settlers</strong>
+      <p>1 Food per settler, minus 1 per roof. Paying is optional — but every Food you don't pay costs you a settler of your choice. A roof over their head or a meal in their hands.</p></div></li>
+    <li><button class="tick" aria-pressed="false" aria-label="Midden"></button><div class="body">
+      <strong>Gain midden</strong>
+      <p>As shown by your slider's top hole, minus 1 per Utensils Card.</p></div></li>
+  </ol>
+
+  <div class="calc">
+    <h4>Feeding check</h4>
+    <div class="fields three">
+      <div class="f"><label for="fSet">Settlers</label><input id="fSet" type="number" min="0" value="0" inputmode="numeric"></div>
+      <div class="f"><label for="fRoof">Roofs</label><input id="fRoof" type="number" min="0" value="0" inputmode="numeric"></div>
+      <div class="f"><label for="fFood">Food you have</label><input id="fFood" type="number" min="0" value="0" inputmode="numeric"></div>
+    </div>
+    <div class="readout" id="feedOut"></div>
+  </div>
+
+  <div class="calc">
+    <h4>Midden check</h4>
+    <div class="fields">
+      <div class="f"><label for="mSlide">Slider's top hole shows</label><input id="mSlide" type="number" min="0" value="0" inputmode="numeric"></div>
+      <div class="f"><label for="mUt">Utensils Cards</label><input id="mUt" type="number" min="0" value="0" inputmode="numeric"></div>
+    </div>
+    <div class="readout" id="middenOut"></div>
+  </div>
+  <p class="muted" data-when="multi" style="display:block">Leave the Turn Order Tile nearby with the markers stacked as they are on the left space.</p>
+</section>
+
+<!-- ============ TILES ============ -->
+<section id="tiles">
+  <h2>What each tile does</h2>
+  <p class="kicker">Blue lines are what changes once the tile is flipped.</p>
+
+  <h3 class="sub">Standard</h3>
+  <details class="acc"><summary>Furnish</summary><div class="in">
+    <p>Spend wool and hides to move your Furnish Marker one space right. The cost in portions (1, 2 or 3) is printed above the space you're moving into. One portion = 2 Wool or 1 Hide, and you can mix.</p>
+    <p class="muted">Two portions could be 4 wool, or 2 wool and 1 hide, or 2 hides.</p>
+    <p>The Furnish track sets how much every settler is worth at the end, plus a bonus per complete set of four different Environments.</p>
+    <p class="flip"><b>Flipped:</b> also produces 1 Barley or 1 Skaill Knife.</p></div></details>
+
+  <details class="acc"><summary>Cook</summary><div class="in">
+    <p>Spend resources to make Food, Bone, Hide and Wool. Total weight of what you cook can't exceed your hearth limit, which starts at <b>4</b>.</p>
+    <p class="muted">Two shells and a fish weighs 4: you get 3 Food and 1 Bone. A deer plus a rabbit weighs 5 — too much.</p>
+    <p class="flip"><b>Flipped:</b> hearth limit +2. Utensils and the Muster tile also raise it.</p></div></details>
+
+  <details class="acc"><summary>Craft</summary><div class="in">
+    <p>Pay the two resources on the tan banner along the bottom of <em>any one</em> Action Tile to turn that tile over. Workers sitting on it just get put back down, no effect.</p>
+    <p>Every flipped tile is 2VP at the end, on top of its better side.</p>
+    <p class="flip"><b>Flipped:</b> take a free Cook action at the end of every round. Hearth limit still applies.</p></div></details>
+
+  <details class="acc"><summary>Clean</summary><div class="in">
+    <p>Spend 2 or more <em>different</em> resources from hides, barley, seaweed and wood — only one of each type. Clear that many midden and take 1 Roof Card (worth 1VP).</p>
+    <p>Clearing one midden means either discarding a midden token, or moving your slider one column left. Mix and match when clearing several. The slider needs 3+ empty spaces to move back.</p>
+    <p class="flip"><b>Flipped:</b> clears one more, and Food counts as one of the resource types.</p></div></details>
+
+  <details class="acc"><summary>Trade</summary><div class="in">
+    <p>Spend 2–6 of a <b>single</b> resource type — the number above the space you're moving into — to advance your Trade Marker one space. Any type but midden; food, knives and fish all count.</p>
+    <p>Straight after, you may buy the resource shown under that space for 1 Skaill Knife.</p>
+    <p class="flip"><b>Flipped:</b> buy with any 1 resource instead, and it needn't match what you spent.</p></div></details>
+
+  <details class="acc"><summary>Gather ×4</summary><div class="in">
+    <p>One tile per Environment. Each worker resolves <b>one</b> of the listed options.</p>
+    <p class="muted">Shore unflipped gives 1 shell or 1 seaweed. Flipped: 1 shell and 1 seaweed, or 1 fish.</p>
+    <p class="flip"><b>Flipped:</b> better options, plus one extra Environment icon of that type whenever you harvest — shown along the very bottom edge. That bonus doesn't change the Gather action itself.</p></div></details>
+
+  <h3 class="sub">Special <span class="cost">— every one costs 2 portions of Food or Bone</span></h3>
+  <p class="muted" style="font-size:.88rem">2 Food, 2 Bone, or one of each.</p>
+
+  <details class="acc"><summary>Build</summary><div class="in">
+    <p>Take a Furnish or Trade action for 2 fewer resources, exactly as if you'd placed a worker there.</p>
+    <p class="flip"><b>Flipped:</b> 3 fewer.</p></div></details>
+  <details class="acc"><summary>Explore</summary><div class="in">
+    <p>Draw 2 Village Cards, keep 1. A settler kept this way gets <em>no</em> harvest and no bottom effect. Stone balls and utensils still give their immediate resources.</p>
+    <p class="flip"><b>Flipped:</b> draw 3 keep 1, and a settler may resolve its bottom effect.</p></div></details>
+  <details class="acc"><summary>Hunt Boar</summary><div class="in">
+    <p>Gain 1 Boar, max 3 at once. The tile shows the boar's weight and what it yields when cooked.</p>
+    <p class="flip"><b>Flipped:</b> also gives 1 Skaill Knife, and boars yield 1 extra hide.</p></div></details>
+  <details class="acc"><summary>Innovate</summary><div class="in">
+    <p>Take a Craft action for 2 fewer resources, ignoring the usual cost.</p>
+    <p class="flip"><b>Flipped:</b> spend 1 Food to immediately use the tile you just turned over.</p></div></details>
+  <details class="acc"><summary>Muster</summary><div class="in">
+    <p>Resolve either the top harvest or the bottom effect of one Environment, by the settler rules. Owning this tile gives hearth limit +1.</p>
+    <p class="flip"><b>Flipped:</b> resolve both instead of choosing. The bottom effect stays optional.</p></div></details>
+  <details class="acc"><summary>Recruit</summary><div class="in">
+    <p>Gain 1 black worker, max 3. They behave like your small workers and go back at the end of the round, ready to hire again.</p>
+    <p class="flip"><b>Flipped:</b> flipped Action Tiles can hold 2 small workers a turn, plus a large one.</p></div></details>
+  <details class="acc"><summary>Spin Wool</summary><div class="in">
+    <p>Take a Spindle Whorl Card, place it below your board, then gain 1 Wool per whorl you own including it. Each is 1VP.</p>
+    <p class="flip"><b>Flipped:</b> afterwards you may spend 3 Wool for a Roof Card.</p></div></details>
+  <details class="acc"><summary>Tend Land</summary><div class="in">
+    <p>Resolve up to 3 different Gather tiles as if you'd placed workers. Swap any of those for clearing 1 midden instead — discard a midden or move the slider left.</p>
+    <p class="flip"><b>Flipped:</b> up to 4 instead of 3.</p></div></details>
+
+  <h3 class="sub">Cooking weights</h3>
+  <table class="tbl">
+    <thead><tr><th>Cook this</th><th>Weight</th><th>You get</th></tr></thead>
+    <tbody>
+      <tr><td>Shell</td><td class="wt">1</td><td>1 Food</td></tr>
+      <tr><td>Barley</td><td class="wt">1</td><td>1 Food</td></tr>
+      <tr><td>Fish</td><td class="wt">2</td><td>1 Food, 1 Bone</td></tr>
+      <tr><td>Rabbit</td><td class="wt">2</td><td>1 Food, 1 Hide</td></tr>
+      <tr><td>Sheep</td><td class="wt">3</td><td>1 Food, 1 Hide, 1 Bone, 1 Wool</td></tr>
+      <tr><td>Deer</td><td class="wt">3</td><td>1 Food, 1 Hide, 2 Bone</td></tr>
+      <tr><td>Cow</td><td class="wt">4</td><td>1 Food, 1 Hide, 2 Bone</td></tr>
+    </tbody>
+  </table>
+  <small class="muted">Weights are what matter for your hearth limit. The exact yields are printed along the bottom strip of your player board — glance there if a cook looks wrong, and trust the board over this table.</small>
+</section>
+
+<!-- ============ SCORING ============ -->
+<section id="scoring">
+  <h2>Scoring</h2>
+  <p class="kicker">After round 4. Ties go to whoever's Turn Marker sits higher on the stack.</p>
+  <ul class="plain">
+    <li><b>Furnish track</b> — 1 or 2 VP per settler, from the top line under the track. Plus 0, 2, 4 or 6 VP per complete row of four settlers from different Environments, from the bottom line.</li>
+    <li><b>Trade track</b> — the value under your marker.</li>
+    <li><b>Flipped tiles</b> — 2VP each.</li>
+    <li><b>Roofs, utensils, stone balls, whorls</b> — the VP printed on each card.</li>
+    <li><b>Food and Skaill Knives</b> — 1VP each.</li>
+    <li><b>Midden</b> — minus 1VP each.</li>
+    <li><b>Slider</b> — minus whatever shows in its bottom hole.</li>
+    <li data-when="solo" style="display:list-item"><b>Faceup Focus and Task Cards</b> — minus 5 and minus 2.</li>
+  </ul>
+
+  <div class="calc">
+    <h4>Tally it up</h4>
+    <div class="fields three">
+      <div class="f"><label for="sSet">Settlers</label><input id="sSet" type="number" min="0" value="0" inputmode="numeric"></div>
+      <div class="f"><label for="sPer">VP per settler</label><select id="sPer"><option value="1">1</option><option value="2" selected>2</option></select></div>
+      <div class="f"><label for="sRows">Complete rows</label><input id="sRows" type="number" min="0" value="0" inputmode="numeric"></div>
+      <div class="f"><label for="sRowVal">VP per row</label><select id="sRowVal"><option>0</option><option>2</option><option selected>4</option><option>6</option></select></div>
+      <div class="f"><label for="sTrade">Trade track VP</label><input id="sTrade" type="number" min="0" value="0" inputmode="numeric"></div>
+      <div class="f"><label for="sFlip">Flipped tiles</label><input id="sFlip" type="number" min="0" value="0" inputmode="numeric"></div>
+      <div class="f"><label for="sCards">Card VP</label><input id="sCards" type="number" min="0" value="0" inputmode="numeric"></div>
+      <div class="f"><label for="sFood">Food + knives</label><input id="sFood" type="number" min="0" value="0" inputmode="numeric"></div>
+      <div class="f"><label for="sMid">Midden</label><input id="sMid" type="number" min="0" value="0" inputmode="numeric"></div>
+      <div class="f"><label for="sSlide">Slider penalty</label><input id="sSlide" type="number" min="0" value="0" inputmode="numeric"></div>
+      <div class="f" data-when="solo"><label for="sFocus">Focus faceup</label><select id="sFocus"><option value="0" selected>No</option><option value="5">Yes</option></select></div>
+      <div class="f" data-when="solo"><label for="sTask">Tasks faceup</label><input id="sTask" type="number" min="0" max="4" value="0" inputmode="numeric"></div>
+    </div>
+    <div class="readout" id="scoreOut"></div>
+  </div>
+  <div class="note calm" data-when="solo"><p>Solo target: 45VP is a win, 55VP or more is a strong game. For a real challenge, hit 55 with each of the eight Special Action Tiles in turn.</p></div>
+</section>
+
+<footer>
+  <p>Skara Brae — game design by Shem Phillips, illustration by Sam Phillips, © 2024 Garphill Games. This is an unofficial play aid; the rulebook wins any argument.</p>
+</footer>
+</div>
+
+<nav class="jump" aria-label="Sections">
+  <ul>
+    <li><a href="#setup">Setup</a></li>
+    <li><a href="#round">Round</a></li>
+    <li><a href="#order">Turn order</a></li>
+    <li><a href="#cards">Cards</a></li>
+    <li><a href="#workers">Workers</a></li>
+    <li><a href="#storage">Storage</a></li>
+    <li><a href="#endround">End of round</a></li>
+    <li><a href="#tiles">Tiles</a></li>
+    <li><a href="#scoring">Scoring</a></li>
+  </ul>
+</nav>
+
+<script>
+(function(){
+  var mode = "3";
+
+  /* ---- toggles ---- */
+  document.querySelectorAll(".tick,[data-turn]").forEach(function(b){
+    b.addEventListener("click",function(){
+      var on = b.getAttribute("aria-pressed")==="true";
+      b.setAttribute("aria-pressed", on ? "false":"true");
+      if(b.hasAttribute("data-turn")) turnHint();
+    });
+  });
+
+  function turnHint(){
+    var n=0;
+    document.querySelectorAll("[data-turn]").forEach(function(b){
+      if(b.getAttribute("aria-pressed")==="true") n++;
+    });
+    var h=document.getElementById("turnHint");
+    if(n===0) h.textContent="Three turns, then the round ends.";
+    else if(n<3) h.textContent=(3-n)+" turn"+(3-n>1?"s":"")+" left in the round.";
+    else h.textContent="Round over — head to End of round.";
+  }
+
+  /* ---- player count ---- */
+  function applyMode(){
+    document.querySelectorAll("[data-when]").forEach(function(el){
+      var w = el.getAttribute("data-when"), show=false;
+      if(w==="solo") show = mode==="solo";
+      if(w==="solo2") show = mode==="solo"||mode==="2";
+      if(w==="multi") show = mode!=="solo";
+      if(w==="2") show = mode==="2";
+      el.classList.toggle("on",show);
+      var disp = "block";
+      if(el.tagName==="LI") disp = el.parentElement.classList.contains("check") ? "flex" : "list-item";
+      else if(el.tagName==="SPAN") disp = "inline";
+      el.style.display = show ? disp : "none";
+    });
+    var note=document.getElementById("pcNote");
+    if(mode==="solo") note.textContent="Solo: no turn order tile. Draw 4, then 3, then 2 cards each round, keeping one each time.";
+    else if(mode==="4") note.textContent="Four players: five Village Cards in each of the three sets.";
+    else if(mode==="2") note.textContent="Two players: four cards per set, plus a neutral Turn Marker in the stack.";
+    else note.textContent="Three players: four Village Cards in each of the three sets.";
+    roundOut();
+    score();
+  }
+  document.querySelectorAll("[data-pc]").forEach(function(b){
+    b.addEventListener("click",function(){
+      mode=b.getAttribute("data-pc");
+      document.querySelectorAll("[data-pc]").forEach(function(o){
+        o.setAttribute("aria-pressed", o===b ? "true":"false");
+      });
+      applyMode();
+    });
+  });
+
+  /* ---- round dial ---- */
+  var round=1;
+  function roundOut(){
+    var w=document.getElementById("roundWorker"), d=document.getElementById("roundDeal");
+    w.innerHTML = round===1
+      ? "Take your <b>Large Worker</b> from the reserve. One worker, one placement per turn this round."
+      : "Take one <b>Small Worker</b> from the reserve — you now have <b>"+round+"</b> workers to place each turn.";
+    if(mode==="solo"){
+      d.innerHTML = "Build facedown piles of 4, 3 and 2 Village Cards for your three turns.";
+    } else {
+      var per = mode==="4" ? 5 : 4;
+      d.innerHTML = "Deal three sets of <b>"+per+"</b> Village Cards faceup in a row. Turn Order Tile to the left of the first set, markers on its left space.";
+    }
+  }
+  document.querySelectorAll("[data-round]").forEach(function(b){
+    b.addEventListener("click",function(){
+      round=parseInt(b.getAttribute("data-round"),10);
+      document.querySelectorAll("[data-round]").forEach(function(o){
+        o.setAttribute("aria-pressed", o===b ? "true":"false");
+      });
+      document.querySelectorAll("[data-turn]").forEach(function(t){t.setAttribute("aria-pressed","false")});
+      turnHint();
+      roundOut();
+    });
+  });
+
+  /* ---- calculators ---- */
+  function v(id){var n=parseInt(document.getElementById(id).value,10);return isNaN(n)?0:n;}
+
+  function feed(){
+    var need=Math.max(0, v("fSet")-v("fRoof")), food=v("fFood");
+    var out=document.getElementById("feedOut");
+    if(need===0){ out.innerHTML='<span class="big ok">Nobody eats</span>Every settler has a roof.'; return; }
+    var lost=Math.max(0, need-food);
+    out.innerHTML = lost===0
+      ? '<span class="big ok">Spend '+need+' Food</span>All settlers stay. You\'ll have '+(food-need)+' Food left, worth '+(food-need)+'VP.'
+      : '<span class="big warn">Spend '+Math.min(food,need)+' Food, lose '+lost+' settler'+(lost>1?"s":"")+'</span>You need '+need+' Food and have '+food+'. Each Food short costs one settler of your choice.';
+  }
+  ["fSet","fRoof","fFood"].forEach(function(id){document.getElementById(id).addEventListener("input",feed)});
+
+  function midden(){
+    var m=Math.max(0, v("mSlide")-v("mUt"));
+    document.getElementById("middenOut").innerHTML = m===0
+      ? '<span class="big ok">No midden</span>Nothing to clean up this round.'
+      : '<span class="big">'+m+' midden</span>Into your storage area, left of the slider. Minus '+m+'VP if it\'s still there at the end.';
+  }
+  ["mSlide","mUt"].forEach(function(id){document.getElementById(id).addEventListener("input",midden)});
+
+  function score(){
+    var pos = v("sSet")*parseInt(document.getElementById("sPer").value,10)
+            + v("sRows")*parseInt(document.getElementById("sRowVal").value,10)
+            + v("sTrade") + v("sFlip")*2 + v("sCards") + v("sFood");
+    var neg = v("sMid") + v("sSlide");
+    if(mode==="solo") neg += parseInt(document.getElementById("sFocus").value,10) + v("sTask")*2;
+    var total = pos-neg;
+    var line = pos+" scored, "+neg+" lost.";
+    if(mode==="solo"){
+      line += total>=55 ? " Well past the 55VP mark — that's a strong game."
+            : total>=45 ? " Over 45VP, so that's a win. 55 is the next target."
+            : " Short of the 45VP win. "+(45-total)+" to go next time.";
+    }
+    document.getElementById("scoreOut").innerHTML='<span class="big">'+total+'VP</span>'+line;
+  }
+  document.querySelectorAll(".calc input,.calc select").forEach(function(el){
+    el.addEventListener("input",score); el.addEventListener("change",score);
+  });
+
+  applyMode(); feed(); midden(); score(); turnHint();
+})();
+</script>
+</body>
+</html>
